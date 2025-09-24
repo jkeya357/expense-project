@@ -3,7 +3,7 @@ import { SetCredentials } from '../../features/auth/authSlice';
 import { jwtDecode } from 'jwt-decode';
 
 const baseQuery = fetchBaseQuery({
-        baseUrl: "http://localhost:5000",
+        baseUrl: "https://expense-project-j7ka.onrender.com",
         credentials: "include",
         prepareHeaders: (headers, {getState}) => {
             const token = getState().auth.token
