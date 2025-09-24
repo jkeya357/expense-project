@@ -3,7 +3,8 @@ import { useState, useEffect } from "react"
 
 const NewExpense = ({userId, onClose}) => {
 
-  const [createExpense, {isLoading, isSuccess, isError, error}] = useCreateExpenseMutation()
+  const [createExpense, 
+    {isLoading, isSuccess, isError, error}] = useCreateExpenseMutation()
 
   const [category, setCategory] = useState('')
   const [amount, setAmount] = useState()

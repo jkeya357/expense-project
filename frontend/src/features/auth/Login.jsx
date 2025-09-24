@@ -20,7 +20,7 @@ const Login = () => {
 
         const {accessToken, email, user} = await login({email: userEmail, password}).unwrap()
         dispatch(SetCredentials({accessToken, email, user}))
-        console.log("accessToken and user",{accessToken, email, user})
+        
         setUserEmail('')
         setPassword('')
         navigate("/dash")

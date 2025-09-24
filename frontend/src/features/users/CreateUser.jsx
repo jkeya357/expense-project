@@ -28,7 +28,7 @@ const CreateUser = () => {
         setEmail('')
         setPassword('')
         
-        navigate("dash")
+        navigate("/")
 
       } catch (error) {
         setErr(error?.data?.message || "Failed to create user")

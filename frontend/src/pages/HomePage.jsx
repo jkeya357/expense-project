@@ -1,8 +1,6 @@
 import {selectAllIncomes} from "../features/income/incomeApiSlice"
 import { useNavigate } from 'react-router-dom';
 import {selectAllExpenses} from "../features/expense/expenseApiSlice"
-import { selectIncomeResult } from "../features/income/incomeApiSlice";
-import { selectExpenseResult } from "../features/expense/expenseApiSlice";
 import { useGetExpenseQuery } from "../features/expense/expenseApiSlice";
 import { useGetIncomeQuery } from "../features/income/incomeApiSlice";
 import { useSelector } from "react-redux";
@@ -19,11 +17,15 @@ const HomePage = () => {
   const renderIncome = () => navigate("/dash/income")
   const renderExpense = () => navigate("/dash/expense")
 
-  const expense = useSelector(selectAllExpenses) || []
-  const income = useSelector(selectAllIncomes) || []
+  const currentUser = useSelector((state) => state.auth.id)
 
-  console.log("Your expense data is",expense)
-  console.log("Your income data is",income)
+  console.log("current user", currentUser)
+
+  const allExpense = useSelector(selectAllExpenses) || []
+  const allIncome = useSelector(selectAllIncomes) || []
+
+  const expense = allExpense.filter(user => user.user === currentUser)
+  const income = allIncome.filter(user => user.user === currentUser )
 
   const totalExpense = expense?.reduce((sum,exp) => sum + exp.amount, 0)
   const totaIncome = income?.reduce((sum,inc) => sum + inc.amount, 0)
