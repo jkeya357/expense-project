@@ -19,21 +19,19 @@ const CreateUser = () => {
     const [err, setErr] = useState()
 
     const handleSubmit = async (e) => {
-
       e.preventDefault()
 
-      await create({fullname, email, password}).unwrap()
+      try {
+        await create({fullname, email, password}).unwrap()
       
-      if(isSuccess){
-      setFullname('')
-      setEmail('')
-      setPassword('')
-      navigate("dash")
-      }
+        setFullname('')
+        setEmail('')
+        setPassword('')
+        
+        navigate("dash")
 
-      if(isError){
-        console.log(isError)
-        setErr(isError)
+      } catch (error) {
+        setErr(error?.data?.message || "Failed to create user")
       }
     }
 
