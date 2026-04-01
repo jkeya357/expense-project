@@ -36,37 +36,52 @@ const createUser = async (req,res) => {
     }
 }
 
-const updateUser = async (req,res) => {
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
 
-    try {
-        const {_id, fullname, icon, email, password} = req.body
+    const { fullname, email, password } = req.body;
+    const icon = req.file;
 
-        if(!_id || !fullname || !email) return res.status(400).json({message: 'All fields required'})
-
-        const user = await User.findById(_id)
-        if(!user) return res.status(404).json({message: 'User not found'})
-        
-        const findEmail = await User.findOne({email})
-        if(findEmail && findEmail._id.toString() !== _id) return res.status(409).json({message: 'That email already exists'})
-        
-        user.fullname = fullname
-        user.email = email
-        
-        if(password){
-            const hashPwd = await bcrypt.hash(password, 10)
-            user.password = hashPwd
-        }
-
-
-        await user.save()
-
-        return res.status(200).json({message: `User ${fullname} updated successfully`})
-    } catch (error) {
-        console.error('Error creating updating user', error);
-        return res.status(500).json({ message: 'Server error while updating user' });
+    if (!fullname || !email) {
+      return res.status(400).json({ message: "Fullname and email are required" });
     }
 
-}
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail && existingEmail._id.toString() !== userId) {
+      return res.status(409).json({ message: "That email already exists" });
+    }
+
+    user.fullname = fullname;
+    user.email = email;
+
+    if (password?.trim()) {
+      user.password = await bcrypt.hash(password, 10);
+    }
+
+    if (icon) {
+      user.icon = icon.path;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: `User ${fullname} updated successfully`,
+      user,
+    });
+
+  } catch (error) {
+    console.error("Error updating user", error);
+    return res.status(500).json({
+      message: "Server error while updating user",
+    });
+  }
+};
 
 const deleteUser = async (req,res) => {
     try {
