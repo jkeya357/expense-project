@@ -1,36 +1,51 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
 
-  const handleLogin = () => navigate('/login');
-  const handleRegister = () => navigate('/register');
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-400 to-gray-400 px-4">
-      <div className="text-center space-y-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-blue-700">
-          Welcome to ExpenseTracker
-        </h1>
-        <p className="text-gray-600 text-lg max-w-xl mx-auto">
-          Track your spending, manage your budget, and stay in control of your finances.
+    <div className="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center px-6">
+
+      <div className="max-w-3xl text-center space-y-8">
+
+        {/* Badge */}
+        <p className="text-sm text-indigo-400 uppercase tracking-wider">
+          Expense Tracker
         </p>
 
-        <div className="flex justify-center space-x-6 pt-4">
+        {/* Title */}
+        <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+          Take control of your{" "}
+          <span className="text-indigo-500">finances</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-gray-400 text-lg max-w-xl mx-auto">
+          Track your expenses, visualize your spending, and stay in control of
+          your money with a simple and powerful dashboard.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+
           <button
-            onClick={handleRegister}
-            className="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition"
+            onClick={() => navigate("/register")}
+            className="bg-indigo-600 hover:bg-indigo-500 transition px-6 py-3 rounded-lg font-semibold shadow"
           >
             Create Account
           </button>
+
           <button
-            onClick={handleLogin}
-            className="border border-blue-600 text-blue-600 px-6 py-2 rounded-xl hover:bg-blue-50 transition"
+            onClick={() => navigate("/login")}
+            className="border border-gray-700 hover:border-indigo-500 transition px-6 py-3 rounded-lg font-semibold text-gray-300 hover:text-white"
           >
             Sign In
           </button>
+
         </div>
+
       </div>
+
     </div>
   );
 };

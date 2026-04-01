@@ -1,35 +1,47 @@
-// components/Header.jsx
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../features/auth/authSlice";
 
 const Header = () => {
+  const token = useSelector(selectCurrentToken);
 
-  const token = useSelector(selectCurrentToken)
+  //if (!token) return null;
 
-  if(!token) return null
-  
+  const linkClass = ({ isActive }) =>
+    `text-sm font-medium px-3 py-2 rounded-lg transition ${
+      isActive
+        ? "bg-gray-200 text-gray-900"
+        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+    }`;
 
   return (
-    <header className="bg-blue-800 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold tracking-wide">
+    <header className="bg-white border-b sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
+        {/* Logo */}
+        <Link
+          to={token ? "/dash" : "/"}
+          className="text-lg font-bold text-gray-900 tracking-tight"
+        >
           ExpenseTracker
         </Link>
-        <nav className="space-x-6">
-          <Link to="/dash" className="hover:underline">
+
+        {/* Navigation */}
+        {token && <nav className="hidden md:flex items-center gap-2">
+          <NavLink to="/dash" className={linkClass}>
             Dashboard
-          </Link>
-          <Link to="/dash/expense" className="hover:underline">
+          </NavLink>
+          <NavLink to="/dash/expense" className={linkClass}>
             Expenses
-          </Link>
-          <Link to="/dash/income" className="hover:underline">
+          </NavLink>
+          <NavLink to="/dash/income" className={linkClass}>
             Income
-          </Link>
-          <Link to="/dash/profile" className="hover:underline">
+          </NavLink>
+          <NavLink to="/dash/profile" className={linkClass}>
             Profile
-          </Link>
-        </nav>
+          </NavLink>
+        </nav>}
+
       </div>
     </header>
   );

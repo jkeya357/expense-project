@@ -1,73 +1,76 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { useGetUserQuery } from "../features/users/userApiSlice";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout, selectCurrentToken } from "../features/auth/authSlice";
+import { logout, selectCurrentToken, selectCurrentUserId } from "../features/auth/authSlice";
+import { useGetUserQuery, selectUserById } from "../features/users/userApiSlice";
 import Header from "./Header";
 import Footer from "./Footer";
+import image from "/user.png"
 
 const Layout = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data: userData, isSuccess } = useGetUserQuery();
-  const token = useSelector(selectCurrentToken)
+  const token = useSelector(selectCurrentToken);
+  useGetUserQuery();
+
+  const currentUser = useSelector(selectCurrentUserId)
+
+  const user = useSelector((state) => selectUserById(state, currentUser))
+
+  console.log("LOGGED IN USER", user)
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate("/login");
+    dispatch(logout());
+    navigate("/");
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      {token && (
-        <aside className="w-64 bg-gray-600 text-white flex flex-col p-4">
-          {/* Profile image from API */}
-          <div className="flex justify-center mb-6">
-            <img
-              src="https://via.placeholder.com/80" // replace with API image
-              alt="Profile"
-              className="rounded-full w-20 h-20 border-2 border-white"
-            />
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+      {/* Header */}
+      <Header />
+
+      {/* Main Content */}
+      <main className="flex-1 px-4 py-6 md:px-10">
+        <div className="max-w-6xl mx-auto space-y-6">
+
+          {/* User Info Card */}
+          {token ? (
+            <div className="bg-white rounded-2xl shadow p-5 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <img
+                  src={user?.icon || image}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full border"
+                />
+
+                <div>
+                  <h2 className="font-semibold text-sm">
+                    {user?.fullname || "User"}
+                  </h2>
+                  <p className="text-xs text-gray-500">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition"
+              >
+                Logout
+              </button>
+            </div>
+          ) : null}
+
+          {/* Content Area */}
+          <div className="bg-white rounded-2xl shadow p-6">
+            <Outlet />
           </div>
 
-          {/* Nav links */}
-          <nav className="flex flex-col gap-4 flex-grow">
-            <NavLink
-              to="/dash/expense"
-              className={({ isActive }) =>
-                `p-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`
-              }
-            >
-              Expenses
-            </NavLink>
-            <NavLink
-              to="/dash/income"
-              className={({ isActive }) =>
-                `p-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-700"}`
-              }
-            >
-              Income
-            </NavLink>
-          </nav>
+        </div>
+      </main>
 
-          {/* Logout button */}
-          <button
-            onClick={handleLogout}
-            className="mt-auto bg-red-500 hover:bg-red-600 p-2 rounded"
-          >
-            Logout
-          </button>
-        </aside>
-      )}
-
-      {/* Main content area */}
-      <div className="flex flex-col flex-1 bg-gray-400">
-        {token && <Header />}
-        <main className="flex-grow p-4">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

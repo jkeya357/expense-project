@@ -42,10 +42,10 @@ const usersApiSlice = apiSlice.injectEndpoints({
             query: (formData) => ({
                 url: "/users",
                 method: "PATCH",
-                body: formData,
+                body: {...formData},
                 formData: true
             }),
-            invalidatesTags: (arg) => [{type: "User", id: "LIST"}]
+            invalidatesTags: (arg) => [{type: "User", id: arg.id}]
         }),
         deleteUser: builder.mutation({
             query: ({id}) => ({

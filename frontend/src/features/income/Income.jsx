@@ -50,67 +50,109 @@ const Income = () => {
 
   if(isSuccess){
     return (
-      <div className="p-6 bg-gray-900 min-h-screen text-white">
+      <div className="min-h-screen bg-gray-950 text-gray-100 p-6 space-y-6">
+
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Incomes</h1>
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+
+          <h1 className="text-2xl font-bold tracking-tight">
+            My Incomes
+          </h1>
+
           <button
             onClick={toggleNewIncome}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+            className="bg-indigo-600 hover:bg-indigo-500 transition px-4 py-2 rounded-lg text-sm font-semibold shadow"
           >
             + Add Income
           </button>
+
         </div>
 
-        {showNewIncome && userId && <NewIncome userId={userId} onClose={() => setShowNewIncome(false)}/>}
+        {/* New Income Form */}
+        {showNewIncome && userId && (
+          <NewIncome userId={userId} onClose={() => setShowNewIncome(false)} />
+        )}
 
-        {/* Bar Chart */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-8">
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-              <XAxis dataKey="name" stroke="#ccc" />
-              <YAxis stroke="#ccc" />
-              <Tooltip contentStyle={{ backgroundColor: "#222", border: "none" }} />
-              <Bar dataKey="amount" fill="#4ade80" radius={[6, 6, 0, 0]} />
+        {/* Chart Card */}
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 shadow-sm">
+          <h2 className="text-sm text-gray-400 mb-4">
+            Income Overview
+          </h2>
+
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
+              <XAxis dataKey="name" stroke="#9ca3af" />
+              <YAxis stroke="#9ca3af" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#111827",
+                  border: "1px solid #374151",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar
+                dataKey="amount"
+                fill="#6366f1"
+                radius={[6, 6, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Income List */}
-        <div className="space-y-4">
+        <div className="space-y-3">
+
           {filterIncome.length > 0 ? (
             filterIncome.map((income) => (
               <div
                 key={income.id}
                 onClick={() => handleEditIncome(income.id)}
-                className="flex justify-between items-center p-4 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700 hover:cursor-pointer transition group"
+                className="group flex justify-between items-center p-4 bg-gray-900 border border-gray-800 rounded-xl hover:border-indigo-500 transition cursor-pointer"
               >
-                {/* Left side: icon + name */}
+
+                {/* Left */}
                 <div className="flex items-center gap-3">
-                  <TrendingUp className="text-green-500" />
+                  <TrendingUp className="text-indigo-400" />
+
                   <div>
-                    <p className="font-semibold">{income.category}</p>
-                    <p className="text-sm text-gray-400">{new Date(income.date).toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {income.category}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {new Date(income.date).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
 
-                {/* Right side: amount + delete */}
+                {/* Right */}
                 <div className="flex items-center gap-4">
-                  <span className="text-green-400 font-bold">R{income.amount}</span>
+                  <span className="text-green-400 font-semibold">
+                    R{income.amount}
+                  </span>
+
                   <button
-                    onClick={() => handleDelete(income.id)}
-                    className="opacity-0 group-hover:opacity-100 transition text-green-500 hover:text-green-400 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(income.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition text-red-400 hover:text-red-300"
                   >
-                    <Trash2 size={20} />
+                    <Trash2 size={18} />
                   </button>
                 </div>
+
               </div>
             ))
           ) : (
-            <p className="text-gray-400 text-center">No incomes yet. Add your first one above!</p>
+            <div className="text-center py-10 text-gray-500">
+              <p className="text-sm">No incomes yet</p>
+              <p className="text-xs">Click "Add Income" to get started</p>
+            </div>
           )}
+
         </div>
+
       </div>
     );
   }

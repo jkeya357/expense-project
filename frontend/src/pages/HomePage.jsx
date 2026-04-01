@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {selectAllExpenses} from "../features/expense/expenseApiSlice"
 import { useGetExpenseQuery } from "../features/expense/expenseApiSlice";
 import { useGetIncomeQuery } from "../features/income/incomeApiSlice";
+import { selectCurrentUserId} from "../features/auth/authSlice";
 import { useSelector } from "react-redux";
 import {PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer} from "recharts"
 
@@ -17,9 +18,7 @@ const HomePage = () => {
   const renderIncome = () => navigate("/dash/income")
   const renderExpense = () => navigate("/dash/expense")
 
-  const currentUser = useSelector((state) => state.auth.id)
-
-  console.log("current user", currentUser)
+  const currentUser = useSelector(selectCurrentUserId)
 
   const allExpense = useSelector(selectAllExpenses) || []
   const allIncome = useSelector(selectAllIncomes) || []
@@ -46,141 +45,177 @@ const HomePage = () => {
     {name: "Balance", value: balance}
   ]
 
+  const renderCustomLabel = ({ name, value }) => {
+    return `${name}: ${value}`;
+  };
+
   const incomePieData = (recentIncome || []).map(inc => ({
     name: inc.category || "Other",
     value: inc.amount
   }));
 
   return (
-  <div className="p-6 bg-gray-100 min-h-screen">
-    {/* Balance Card */}
-    <div className="mb-6 bg-white p-6 shadow rounded-lg">
-      <h1 className="text-2xl font-bold">Balance: ${balance.toFixed(2)}</h1>
-      <p className="text-green-600">Total Income: ${totaIncome.toFixed(2)}</p>
-      <p className="text-red-600">Total Expense: ${totalExpense.toFixed(2)}</p>
-    </div>
+    <div className="p-6 bg-gray-50 min-h-screen space-y-6">
 
-    {/* Grid Layout */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      {/* Financial Overview Pie Chart */}
-      <div className="bg-white p-4 shadow rounded-lg flex flex-col items-center">
-        <h2 className="font-bold mb-4">Financial Overview</h2>
-        <PieChart width={250} height={250}>
-          <Pie
-            data={pieData}
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-            label
-          >
-            {pieData?.map((entry, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
+      {/* Top Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+        <div className="bg-white p-5 rounded-2xl shadow-sm border">
+          <p className="text-sm text-gray-500">Balance</p>
+          <h1 className="text-2xl font-bold">
+            ${balance.toFixed(2)}
+          </h1>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl shadow-sm border">
+          <p className="text-sm text-gray-500">Total Income</p>
+          <h1 className="text-2xl font-bold text-green-600">
+            ${totaIncome.toFixed(2)}
+          </h1>
+        </div>
+
+        <div className="bg-white p-5 rounded-2xl shadow-sm border">
+          <p className="text-sm text-gray-500">Total Expense</p>
+          <h1 className="text-2xl font-bold text-red-600">
+            ${totalExpense.toFixed(2)}
+          </h1>
+        </div>
+
       </div>
 
-      {/* Recent Expenses Bar Chart */}
-      <div
-        onClick={renderExpense}
-        className="bg-white p-4 shadow rounded-lg col-span-2 cursor-pointer"
-      >
-        <h2 className="font-bold mb-4">Recent Expenses (Last 60 Days)</h2>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={recentExpense}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="category" />
-            <YAxis />
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Financial Overview */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border flex flex-col items-center">
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Financial Overview
+          </h2>
+
+          <PieChart width={220} height={220}>
+            <Pie
+              data={pieData}
+              cx="50%"
+              cy="50%"
+              outerRadius={70}
+              dataKey="value"
+              label
+            >
+              {pieData?.map((entry, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
             <Tooltip />
-            <Legend />
-            <Bar dataKey="amount" fill="#F44336" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+          </PieChart>
+        </div>
 
-      {/* Recent Incomes */}
-      <div
-        onClick={renderIncome}
-        className="bg-white p-4 shadow rounded-lg cursor-pointer"
-      >
-        <h2 className="font-bold mb-4">Recent Incomes</h2>
-        <ul className="space-y-2">
-          {recentIncome.slice(0, 5).map((inc) => (
-            <li
-              key={inc.id}
-              className="flex justify-between border-b pb-1"
-            >
-              <span>{inc.category || "Other"}</span>
-              <span className="text-green-600">${inc.amount}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+        {/* Expenses Chart */}
+        <div
+          onClick={renderExpense}
+          className="bg-white p-5 rounded-2xl shadow-sm border col-span-2 cursor-pointer hover:shadow-md transition"
+        >
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Recent Expenses (60 Days)
+          </h2>
 
-      {/* Recent Transactions */}
-      <div className="bg-white p-4 shadow rounded-lg col-span-2">
-        <h2 className="font-bold mb-4">Recent Transactions (Last 60 Days)</h2>
-        <ul className="space-y-2">
-          {recentTransaction.slice(0, 8).map((tx) => (
-            <li
-              key={tx.id}
-              className="flex justify-between border-b pb-1"
-            >
-              <span>{tx.type} - {tx.category || "Other"}</span>
-              <span
-                className={
-                  tx.type === "Income"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={recentExpense}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="category" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="amount" fill="#ef4444" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Incomes */}
+        <div
+          onClick={renderIncome}
+          className="bg-white p-5 rounded-2xl shadow-sm border cursor-pointer hover:shadow-md transition"
+        >
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Recent Incomes
+          </h2>
+
+          <ul className="space-y-2 text-sm">
+            {recentIncome.slice(0, 5).map((inc) => (
+              <li
+                key={inc.id}
+                className="flex justify-between border-b pb-1"
               >
-                ${tx.amount}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Incomes by Category Pie Chart */}
-      <div className="bg-white p-4 shadow rounded-lg flex flex-col items-center">
-        <h2 className="font-bold mb-4">Incomes by Category (Last 60 Days)</h2>
-        <PieChart width={250} height={250}>
-          <Pie
-            data={incomePieData}
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            dataKey="value"
-            label
-          >
-            {incomePieData.map((entry, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                <span>{inc.category || "Other"}</span>
+                <span className="text-green-600 font-medium">
+                  ${inc.amount}
+                </span>
+              </li>
             ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
+          </ul>
+        </div>
+
+        {/* Transactions */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border col-span-2">
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Recent Transactions
+          </h2>
+
+          <ul className="space-y-2 text-sm">
+            {recentTransaction.slice(0, 8).map((tx) => (
+              <li
+                key={tx.id}
+                className="flex justify-between border-b pb-1"
+              >
+                <span>
+                  {tx.type} - {tx.category || "Other"}
+                </span>
+
+                <span
+                  className={`font-medium ${
+                    tx.type === "Income"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  ${tx.amount}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Income Pie Chart */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border flex flex-col items-center">
+          <h2 className="font-semibold mb-4 text-gray-700">
+            Income by Category
+          </h2>
+
+          <PieChart width={280} height={220}>
+            <Pie
+              data={incomePieData}
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              dataKey="value"
+              label
+            >
+              {incomePieData.map((entry, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </div>
+
       </div>
+
+      {/* Errors */}
+      {(expenseError || incomeError) && (
+        <div className="text-sm text-red-500">
+          {expenseError?.data?.message || incomeError?.data?.message || "Something went wrong"}
+        </div>
+      )}
     </div>
-
-    {/* Error Messages */}
-    {expenseError && (
-      <p className="text-red-500 mt-4">
-        Error: {expenseError?.data?.message || "Failed to load expenses"}
-      </p>
-    )}
-
-    {incomeError && (
-      <p className="text-red-500 mt-4">
-        Error: {incomeError?.data?.message || "Failed to load incomes"}
-      </p>
-    )}
-  </div>
-);
-
+  );
 }
 
 export default HomePage

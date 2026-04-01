@@ -2,12 +2,14 @@ import { useSelector } from "react-redux";
 import { selectAllUsers, useUpdateUserMutation, useGetUserQuery } from "../features/users/userApiSlice";
 import { selectCurrentUserId } from "../features/auth/authSlice";
 import { useState, useEffect } from "react";
+import defaultProfile from "/user.png"
 
 const ProfilePage = () => {
   useGetUserQuery();
   const currentUserId = useSelector(selectCurrentUserId);
   const users = useSelector(selectAllUsers)
   const user = users?.find((u) => u.id === currentUserId);
+  console.log("user update id: ", currentUserId)
   const [updateUser] = useUpdateUserMutation();
 
   const [fullname, setFullname] = useState("");
@@ -20,7 +22,7 @@ const ProfilePage = () => {
   useEffect(() => {
     if (user) {
       setFullname(user.fullname || "");
-      setIconPreview(user.icon || null);
+      setIconPreview(user.icon || defaultProfile);
     }
   }, [user]);
 
@@ -41,7 +43,7 @@ const ProfilePage = () => {
     }
 
     const formData = new FormData();
-    formData.append("id", currentUserId);
+    formData.append("_id", currentUserId);
     formData.append("fullname", fullname);
     if (password) formData.append("password", password);
     if (icon) formData.append("icon", icon);
@@ -55,78 +57,118 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <h1 className="text-2xl font-bold mb-6">My Profile</h1>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg space-y-4">
-        {/* Profile Image Upload */}
-        <div className="flex justify-center mb-6">
-          <label className="cursor-pointer">
-            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-            <div className="w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-gray-600 hover:border-blue-500">
+    <div className="min-h-screen bg-gray-950 text-gray-100 px-6 py-10">
+
+      {/* Page Title */}
+      <h1 className="text-2xl font-bold mb-8 tracking-tight">
+        My Profile
+      </h1>
+
+      {/* Form Card */}
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-lg mx-auto bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-6 shadow-sm"
+      >
+
+        {/* Profile Image */}
+        <div className="flex justify-center">
+          <label className="cursor-pointer group">
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+
+            <div className="w-28 h-28 rounded-full overflow-hidden border border-gray-700 flex items-center justify-center bg-gray-800 group-hover:border-indigo-500 transition">
+
               {iconPreview ? (
-                <img src={iconPreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                <img
+                  src={iconPreview}
+                  alt="Profile Preview"
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <span className="text-gray-400 text-center">Click to add image</span>
+                <span className="text-xs text-gray-400 text-center px-2">
+                  Click to upload
+                </span>
               )}
+
             </div>
+
           </label>
         </div>
 
         {/* Name */}
         <div>
-          <label className="block mb-1 font-semibold">Name</label>
+          <label className="block text-sm text-gray-400 mb-1">
+            Name
+          </label>
           <input
             type="text"
             value={fullname}
             onChange={(e) => setFullname(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* Email */}
         <div>
-          <label className="block mb-1 font-semibold">Email</label>
+          <label className="block text-sm text-gray-400 mb-1">
+            Email
+          </label>
           <input
             type="email"
             value={user?.email || ""}
             readOnly
-            className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 cursor-not-allowed"
+            className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 opacity-70 cursor-not-allowed"
           />
         </div>
 
         {/* Password */}
         <div>
-          <label className="block mb-1 font-semibold">New Password</label>
+          <label className="block text-sm text-gray-400 mb-1">
+            New Password
+          </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Leave blank to keep current password"
-            className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* Confirm Password */}
         <div>
-          <label className="block mb-1 font-semibold">Confirm Password</label>
+          <label className="block text-sm text-gray-400 mb-1">
+            Confirm Password
+          </label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Repeat new password"
-            className="w-full px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold"
+          className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition font-semibold shadow"
         >
           Update Profile
         </button>
 
-        {message && <p className="text-yellow-400 mt-2">{message}</p>}
+        {/* Message */}
+        {message && (
+          <p className="text-sm text-yellow-400 text-center">
+            {message}
+          </p>
+        )}
+
       </form>
     </div>
   );
