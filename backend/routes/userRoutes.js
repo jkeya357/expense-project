@@ -3,13 +3,11 @@ const router = express.Router()
 const userController = require('../controllers/UserController')
 const verifyJWT = require('../middleware/verifyJWT')
 
-router.post('/', userController.createUser)
-
 router.use(verifyJWT)
 
-router.route('/')
-    .get(userController.getUsers)
-    .patch(userController.updateUser)
-    .delete(userController.deleteUser )
+router.get("/", userController.getUsers)
+router.get("/:email", userController.findUserByEmail)
+router.patch("/", userController.updateUser)
+router.delete("/", userController.deleteUser )
 
 module.exports = router

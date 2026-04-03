@@ -19,6 +19,7 @@ const login = async (req,res) => {
         const accessToken = jwt.sign(
             {
                 "userInfo":{
+                    "id": user._id,
                     "email": user.email,
                 }
             },
@@ -47,6 +48,59 @@ const login = async (req,res) => {
     } catch (error) {
         console.error("There was an error generating the accessToken", error)
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+const createUser = async (req,res) => {
+    try {
+        const {fullname, email, password} = req.body 
+
+        if(!fullname || !email || !password) return res.status(400).json({message: 'All fields are required'})
+
+        const duplicate = await User.findOne({email}).exec()    
+        
+        if(duplicate) return res.status(409).json({message: 'Email already exists'})
+        
+        const hashedPwd = await bcrypt.hash(password, 10)
+        
+        const createdUser = await User.create({
+            fullname,
+            email,
+            password: hashedPwd
+        })
+
+        const accessToken = jwt.sign(
+            {
+                "userInfo":{
+                    "id": createdUser._id,
+                    "email": createdUser.email,
+                }
+            },
+            process.env.ACCESS_TOKEN,
+            {expiresIn: '1d'}
+        )
+
+        const refreshToken = jwt.sign(
+            {"email": createdUser.email},
+            process.env.REFRESH_TOKEN,
+            {expiresIn: '7d'}
+        )
+
+        res.cookie('jwt', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
+        res.json({
+            accessToken,
+            user: createdUser.id,
+            email: createdUser.email
+        })
+    } catch (error) {
+        console.log("Error creating the new user", error);
+        return res.status(500).json({ message: 'Server error while creating user' });
     }
 }
 
@@ -105,4 +159,4 @@ const logout = (req,res) => {
     res.json('cookies cleared')
 }
 
-module.exports = {login, refresh, logout}
+module.exports = {login, createUser, refresh, logout}

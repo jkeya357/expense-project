@@ -10,30 +10,25 @@ const getUsers = async (req,res) => {
     return res.json(users)
 }
 
-//CREATE USERS
-const createUser = async (req,res) => {
-    try {
-        const {fullname, email, password} = req.body 
+const findUserByEmail = async(req,res) => {
+  try {
+    const { email } = req.params;
 
-        if(!fullname || !email || !password) return res.status(400).json({message: 'All fields are required'})
-
-        const duplicate = await User.findOne({email}).exec()    
-        
-        if(duplicate) return res.status(409).json({message: 'Email already exists'})
-        
-        const hashedPwd = await bcrypt.hash(password, 10)
-        
-        await User.create({
-            fullname,
-            email,
-            password: hashedPwd
-        })
-
-        return res.json({message: `user ${fullname} created successfully`})
-    } catch (error) {
-        console.log("Error creating the new user", error);
-        return res.status(500).json({ message: 'Server error while creating user' });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
     }
+
+    const foundUser = await User.findOne({ email }).select("-password").lean();
+
+    if (!foundUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json(foundUser);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
 }
 
 const updateUser = async (req, res) => {
@@ -100,4 +95,4 @@ const deleteUser = async (req,res) => {
     }
 }
 
-module.exports = {getUsers, createUser, updateUser, deleteUser}
+module.exports = {getUsers, findUserByEmail, updateUser, deleteUser}
