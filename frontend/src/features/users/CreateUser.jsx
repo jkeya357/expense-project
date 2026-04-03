@@ -16,13 +16,15 @@ const CreateUser = () => {
     e.preventDefault();
 
     try {
-      await create({ fullname, email, password }).unwrap();
+      const result  = await create({ fullname, email, password }).unwrap();
 
       setFullname("");
       setEmail("");
       setPassword("");
 
-      navigate("/");
+      if(result){
+        navigate("/dash");
+      }
     } catch (error) {
       setErr(error?.data?.message || "Failed to create user");
     }
