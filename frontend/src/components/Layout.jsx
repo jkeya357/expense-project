@@ -1,7 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout, selectCurrentToken, selectCurrentUserId } from "../features/auth/authSlice";
-import { useGetUserQuery, selectUserById } from "../features/users/userApiSlice";
+import { logout, selectCurrentToken, selectCurrentEmail } from "../features/auth/authSlice";
+import { useFindUserByEmailQuery} from "../features/users/userApiSlice";
 import Header from "./Header";
 import Footer from "./Footer";
 import image from "/user.png"
@@ -10,13 +10,14 @@ const Layout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = useSelector(selectCurrentToken);
-  useGetUserQuery();
 
-  const currentUser = useSelector(selectCurrentUserId)
+  const currentUserEmail = useSelector(selectCurrentEmail)
+  console.log("LOGGED IN USER IN LAYOUT", currentUserEmail)
 
-  const user = useSelector((state) => selectUserById(state, currentUser))
+  const {data: user, isSuccess, isLoading} = useFindUserByEmailQuery(currentUserEmail);
+  console.log("LOGGED IN USER IN LAYOUT", user)
 
-  console.log("LOGGED IN USER", user)
+  
 
   const handleLogout = () => {
     dispatch(logout());
@@ -54,7 +55,7 @@ const Layout = () => {
 
               <button
                 onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition"
+                className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition hover:pointer"
               >
                 Logout
               </button>

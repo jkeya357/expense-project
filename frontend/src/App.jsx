@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router"
 import Layout from './components/Layout';
 import Home from "./components/Home";
 import Login from "./features/auth/Login";
-import CreateUser from "./features/users/CreateUser";
+import CreateUser from "./features/auth/CreateUser";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import Income from "./features/income/Income";

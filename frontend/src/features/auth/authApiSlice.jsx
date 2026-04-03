@@ -13,6 +13,16 @@ const authApiSlice = apiSlice.injectEndpoints({
                 credentials: "include"
             })
         }),
+          signup: builder.mutation({
+            query: initialUserData => ({
+                url: "auth/signup",
+                method: "POST",
+                body: {
+                    ...initialUserData
+                }
+            }),
+            invalidatesTags: [{type: "User", id: "LIST"}]
+        }),
         sendLogout: builder.mutation({
             query: credentials => ({
                 url: "/auth/logout",
@@ -42,9 +52,10 @@ const authApiSlice = apiSlice.injectEndpoints({
                     const {accessToken} = data
 
                     const decoded = jwtDecode(accessToken)
+                    const id = decoded?.userInfo.id
                     const email = decoded?.userInfo?.email
                     
-                    dispatch(SetCredentials({accessToken, email}))
+                    dispatch(SetCredentials({accessToken, id, email}))
                 } catch (error) {
                     console.log("Error in receiving an accessToken", error)
                 }
@@ -55,6 +66,7 @@ const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useLoginMutation,
+    useSignupMutation,
     useSendLogoutMutation,
     useRefreshQuery
 } = authApiSlice

@@ -1,11 +1,14 @@
-import { useCreateUserMutation } from "./userApiSlice";
+import { useSignupMutation } from "./authApiSlice";
+import { selectCurrentToken, SetCredentials } from "./authSlice";
+import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const CreateUser = () => {
   const navigate = useNavigate();
 
-  const [create, { isLoading }] = useCreateUserMutation();
+  const [create, { isLoading, isSuccess }] = useSignupMutation();
+  const dispatch = useDispatch()
 
   const [fullname, setFullname] = useState("");
   const [email, setEmail] = useState("");
@@ -16,15 +19,17 @@ const CreateUser = () => {
     e.preventDefault();
 
     try {
-      const result  = await create({ fullname, email, password }).unwrap();
+      const result = await create({ fullname, email, password }).unwrap();
+
+      console.log("CREATED USER RESULT: ",result)
+
+      dispatch(SetCredentials({accessToken: result.accessToken, email: result.email, user: result.user}))
+      
 
       setFullname("");
       setEmail("");
       setPassword("");
-
-      if(result){
-        navigate("/dash");
-      }
+      navigate("/dash")
     } catch (error) {
       setErr(error?.data?.message || "Failed to create user");
     }

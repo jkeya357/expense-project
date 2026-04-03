@@ -3,7 +3,7 @@ import { SetCredentials } from '../../features/auth/authSlice';
 import { jwtDecode } from 'jwt-decode';
 
 const baseQuery = fetchBaseQuery({
-        baseUrl: process.env.VITE_BACKEND_URL,
+        baseUrl: import.meta.env.VITE_BACKEND_URL,
         credentials: "include",
         prepareHeaders: (headers, {getState}) => {
             const token = getState().auth.token

@@ -12,7 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState();
 
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading, isSuccess }] = useLoginMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +27,7 @@ const Login = () => {
 
       setUserEmail("");
       setPassword("");
-      navigate("/dash");
+      navigate("/dash")
     } catch (error) {
       if (!error?.status) {
         setErr("No server response");
