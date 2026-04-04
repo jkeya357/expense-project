@@ -1,26 +1,37 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, selectCurrentToken, selectCurrentEmail } from "../features/auth/authSlice";
 import { useFindUserByEmailQuery} from "../features/users/userApiSlice";
+// import apiSlice from "../api/apiSlice";
 import Header from "./Header";
 import Footer from "./Footer";
+import LogoutModal from "./LogoutModal";
 import image from "/user.png"
+import { useState, useEffect } from "react";
 
 const Layout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const token = useSelector(selectCurrentToken);
 
+  useEffect(() => {
+    if (!token && location.pathname.startsWith("/dash")) {
+      navigate("/", { replace: true });
+    }
+  }, [token, location.pathname, navigate]);
+
   const currentUserEmail = useSelector(selectCurrentEmail)
-  console.log("LOGGED IN USER IN LAYOUT", currentUserEmail)
 
-  const {data: user, isSuccess, isLoading} = useFindUserByEmailQuery(currentUserEmail);
-  console.log("LOGGED IN USER IN LAYOUT", user)
+  const {data: user, isSuccess, isLoading} = useFindUserByEmailQuery(currentUserEmail, {
+    skip: !currentUserEmail || !token
+  });
 
-  
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(apiSlice.util.resetApiState())
     navigate("/");
   };
 
@@ -54,7 +65,7 @@ const Layout = () => {
               </div>
 
               <button
-                onClick={handleLogout}
+                onClick={() => setShowLogoutModal(true)}
                 className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg transition hover:pointer"
               >
                 Logout
@@ -69,6 +80,13 @@ const Layout = () => {
 
         </div>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutModal
+        showLogoutModal={showLogoutModal}
+        setShowLogoutModal={setShowLogoutModal}
+        handleLogout={handleLogout}
+      />
 
       {/* Footer */}
       <Footer />
